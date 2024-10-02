@@ -1,0 +1,35 @@
+else if(isLastPointHigh()){
+         if (highs.get(0).value < high(shift)){
+            option = "2.1";
+            highs.set(0,pointHigh);
+            lows.removeLast();
+            lows.addFirst(pointLow);
+         }
+         else{
+            option = "2.2";
+            lows.removeLast();
+            lows.addFirst(pointLow);
+            if(close(shift) > open(shift)){
+               highs.removeLast();
+               highs.addFirst(pointHigh);
+            }
+         }
+      }
+      
+      else{
+         if (lows.get(0).value > low(shift)){
+            option = "3.1";
+            lows.set(0,pointLow);
+            highs.removeLast();
+            highs.addFirst(pointHigh);
+         }
+         else{
+            option = "3.2";
+            highs.removeLast();
+            highs.addFirst(pointHigh);
+            if(close(shift) < open(shift)){
+               lows.removeLast();
+               lows.addFirst(pointLow);
+            }
+         }
+      }

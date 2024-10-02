@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+
+<head>
+<style>
+	body {
+		font-family: Arial, sans-serif;
+	}
+
+	div {
+		margin: 10px;
+	}
+
+	select, input[type=number],  input[type=text]{
+		border: 1px solid #ccc;
+		border-radius: 5px;
+		height: 25px;
+		font-size: 16px;
+		padding: 3px;
+		margin: 2px;
+	}
+
+	input[type=number] {
+		width: 80px;
+	}
+
+	input[type=submit] {
+		border: none;
+		border-radius: 5px;
+		height: 35px;
+		font-size: 16px;
+		padding: 5px 10px;
+		margin: 10px;
+		background-color: #4CAF50;
+		color: white;
+	}
+
+	input[type=submit]:hover {
+		background-color: #3e8e41;
+		cursor: pointer;
+	}
+
+</style>
+</head>	
+<body style="margin: 0px">
+	<div>
+        Strategy:
+        <select id="strategyID" onchange="changeStrategyAndDirection()">
+            <option value = "0" selected>0</option>
+            <option value = "1">1</option>
+            <option value = "2">2</option>
+            <option value = "3">3</option>
+            <option value = "4">4</option>
+			<option value = "5">5</option>
+			<option value = "6">6</option>
+			<option value = "7">7</option>
+        </select>
+		Direction:
+		<select id="direction" onchange="changeStrategyAndDirection()">
+            <option value = "0" selected>Buy</option>
+            <option value = "1">Sell</option>
+        </select>
+    </div><br>
+	<div>
+        run:
+        <select id="run" onchange="changeRun()">
+            <option value = true selected>true</option>
+            <option value = false>false</option>
+        </select>
+	</div><br>
+	<div id="inputsDiv">
+		Trading Range:
+		<input type="text" id="tradingRange" onchange="changeInput()"><br>
+		Risk Ratio:
+		<input type="number" id="riskRatio" onchange="changeInput()"><br>
+		Risk Per Trade:
+		<input type="number" id="riskPerTrade" onchange="changeInput()"><br>
+		Starting BE:
+		<input type="number" id="startingBE" onchange="changeInput()"><br>
+		Starting Trailing Stop: 
+		<input type="number" id="startingTrailingStop" onchange="changeInput()"><br>
+		Trailing Stop Factor:
+		<input type="number" id="trailingStopFactor" onchange="changeInput()"><br>
+		Stop in Bodies:
+        <select id="stopInBodies" onchange="changeInput()">
+            <option value = true selected>true</option>
+            <option value = false>false</option>
+        </select><br>
+		Max SL Points Size:
+		<input type="number" id="maxSlPointsSize" onchange="changeInput()"><br>
+		Min SL Points Size:
+		<input type="number" id="minSlPointsSize" onchange="changeInput()"><br>
+		SL Shift:
+		<input type="number" id="slShift" onchange="changeInput()"><br>
+		Cancel Pending Order:
+		<input type="number" id="cancelPendingOrderAtRiskReward" onchange="changeInput()"><br>
+		Fractal Number: 
+		<input type="number" id="fractalNumber" onchange="changeInput()"><br>
+		Last Fractal Number: 
+		<input type="number" id="lastFractalNumber" onchange="changeInput()"><br>
+		Max Candels Per Setup:
+		<input type="number" id="maxCandlesPerSetup" onchange="changeInput()"><br>
+		Structure in Bodies:
+        <select id="structureInBodies" onchange="changeInput()">
+            <option value = true selected>true</option>
+            <option value = false>false</option>
+        </select><br>
+		Use Imbalances:
+        <select id="useImbalances" onchange="changeInput()">
+            <option value = true selected>true</option>
+            <option value = false>false</option>
+        </select><br>
+		Use Divergences:
+        <select id="useDivergences" onchange="changeInput()">
+            <option value = true selected>true</option>
+            <option value = false>false</option>
+        </select><br>
+		Confirmation Fibonacci: 
+		<input type="number" id="confirmationFibonacci" onchange="changeInput()"><br>
+		Entry Fibonacci:
+		<input type="number" id="entryFibonacci" onchange="changeInput()"><br>
+		Daily Bias:
+        <select id="previousDayBias" onchange="changeInput()">
+            <option value = true selected>true</option>
+            <option value = false>false</option>
+        </select><br>
+		Asian Bias:
+        <select id="asianBias" onchange="changeInput()">
+            <option value = true selected>true</option>
+            <option value = false>false</option>
+        </select><br>
+		European Bias:
+        <select id="europeanBias" onchange="changeInput()">
+            <option value = true selected>true</option>
+            <option value = false>false</option>
+        </select><br>
+		American Bias:
+        <select id="americanBias" onchange="changeInput()">
+            <option value = true selected>true</option>
+            <option value = false>false</option>
+        </select><br>
+		<button id = "copy" type="button" onclick="copyInput()">Copy</button>
+		<button id = "paste" type="button" onclick="pasteInput()">Paste</button>
+    </div>
+	<div>
+		<button id = "write" type="button" onclick="writeF()">Write</button>
+		<input id = "load" type="file" onchange="loadF(event)" />
+	</div>
+</body>
+</html>
+
+<script>
+	var inputs = [];
+	var copy = {
+	   run: true,
+	   tradingRange: "8-20",
+	   riskRatio: 3.0,
+	   riskPerTrade: 0.01,
+	   startingBE: 0.0,
+	   startingTrailingStop: 0.0,
+	   trailingStopFactor: 2.0,
+	   stopInBodies: true,
+	   maxSlPointsSize: 150,
+	   minSlPointsSize: 0,
+	   slShift: 0,
+	   cancelPendingOrderAtRiskReward: 4.0,
+	   fractalNumber: 5,
+	   lastFractalNumber: 2,
+	   maxCandlesPerSetup: 12,
+	   structureInBodies: true,
+	   useImbalances: true,
+	   useDivergences: true,
+	   confirmationFibonacci: 0.5,
+	   entryFibonacci: 0.5,
+	   previousDayBias: true,
+	   asianBias: true,
+	   europeanBias: true,
+	   americanBias: true
+	};
+
+	var strategyID,direction,run,inputsDiv;
+
+	window.onload = function(){
+		for(var i = 0;i<8;i++){
+			inputs[i] = new Array();
+			for(var j = 0;j<2;j++){
+				inputs[i][j] = {
+				   run: true,
+				   tradingRange: "8-20",
+				   riskRatio: 3.0,
+				   riskPerTrade: 0.01,
+				   startingBE: 0.0,
+				   startingTrailingStop: 0.0,
+				   trailingStopFactor: 2.0,
+				   stopInBodies: true,
+				   maxSlPointsSize: 150,
+				   minSlPointsSize: 0,
+				   slShift: 0,
+				   cancelPendingOrderAtRiskReward: 4.0,
+				   fractalNumber: 5,
+				   lastFractalNumber: 2,
+				   maxCandlesPerSetup: 12,
+				   structureInBodies: true,
+				   useImbalances: true,
+				   useDivergences: true,
+				   confirmationFibonacci: 0.5,
+				   entryFibonacci: 0.5,
+				   previousDayBias: true,
+				   asianBias: true,
+				   europeanBias: true,
+				   americanBias: true
+				};
+			}
+		}
+		
+		strategyID = document.getElementById('strategyID');;
+		direction = document.getElementById('direction');
+		run = document.getElementById('run');
+		inputsDiv = document.getElementById('inputsDiv');
+		tradingRange = document.getElementById('tradingRange');
+		riskRatio = document.getElementById('riskRatio');
+		riskPerTrade = document.getElementById('riskPerTrade');
+		startingBE = document.getElementById('startingBE');
+		startingTrailingStop = document.getElementById('startingTrailingStop');
+		trailingStopFactor = document.getElementById('trailingStopFactor');
+		stopInBodies = document.getElementById('stopInBodies');
+		maxSlPointsSize = document.getElementById('maxSlPointsSize');
+		minSlPointsSize = document.getElementById('minSlPointsSize');
+		slShift = document.getElementById('slShift');
+		cancelPendingOrderAtRiskReward = document.getElementById('cancelPendingOrderAtRiskReward');
+		fractalNumber = document.getElementById('fractalNumber');
+		lastFractalNumber = document.getElementById('lastFractalNumber');
+		maxCandlesPerSetup = document.getElementById('maxCandlesPerSetup');
+		structureInBodies = document.getElementById('structureInBodies');
+		useImbalances = document.getElementById('useImbalances');
+		useDivergences = document.getElementById('useDivergences');
+		confirmationFibonacci = document.getElementById('confirmationFibonacci');
+		entryFibonacci = document.getElementById('entryFibonacci');
+		previousDayBias = document.getElementById('previousDayBias');
+		asianBias = document.getElementById('asianBias');
+		europeanBias = document.getElementById('europeanBias');
+		americanBias = document.getElementById('americanBias');
+		changeStrategyAndDirection();
+	}
+
+	function changeStrategyAndDirection(){
+		loadInputToScreen();
+	}
+	function changeRun(){
+		changeInput();
+		if(run.value == "true")
+			inputsDiv.hidden = false;
+		else
+			inputsDiv.hidden = true;
+	}
+	function loadInputToScreen(){
+		var str = strategyID.value;
+		var dir = direction.value;
+		run.value = inputs[str][dir].run;
+		tradingRange.value = inputs[str][dir].tradingRange;
+		riskRatio.value = inputs[str][dir].riskRatio;
+		riskPerTrade.value = inputs[str][dir].riskPerTrade;
+		startingBE.value = inputs[str][dir].startingBE;
+		startingTrailingStop.value = inputs[str][dir].startingTrailingStop;
+		trailingStopFactor.value = inputs[str][dir].trailingStopFactor;
+		stopInBodies.checked = inputs[str][dir].stopInBodies;
+		maxSlPointsSize.value = inputs[str][dir].maxSlPointsSize;
+		minSlPointsSize.value = inputs[str][dir].minSlPointsSize;
+		slShift.value = inputs[str][dir].slShift;
+		cancelPendingOrderAtRiskReward.value = inputs[str][dir].cancelPendingOrderAtRiskReward;
+		fractalNumber.value = inputs[str][dir].fractalNumber;
+		lastFractalNumber.value = inputs[str][dir].lastFractalNumber;
+		maxCandlesPerSetup.value = inputs[str][dir].maxCandlesPerSetup;
+		structureInBodies.checked = inputs[str][dir].structureInBodies;
+		useImbalances.checked = inputs[str][dir].useImbalances;
+		useDivergences.checked = inputs[str][dir].useDivergences;
+		confirmationFibonacci.value = inputs[str][dir].confirmationFibonacci;
+		entryFibonacci.value = inputs[str][dir].entryFibonacci;
+		previousDayBias.checked = inputs[str][dir].previousDayBias;
+		asianBias.checked = inputs[str][dir].asianBias;
+		europeanBias.checked = inputs[str][dir].europeanBias;
+		americanBias.checked = inputs[str][dir].americanBias;
+		changeRun();
+	}
+	function changeInput(){
+		var str = document.getElementById("strategyID").value;
+		var dir = document.getElementById("direction").value;
+		inputs[str][dir].run = run.value;
+		inputs[str][dir].tradingRange = tradingRange.value;
+		inputs[str][dir].riskRatio = riskRatio.value;
+		inputs[str][dir].riskPerTrade = riskPerTrade.value;
+		inputs[str][dir].startingBE = startingBE.value;
+		inputs[str][dir].startingTrailingStop = startingTrailingStop.value;
+		inputs[str][dir].trailingStopFactor = trailingStopFactor.value;
+		inputs[str][dir].stopInBodies = stopInBodies.value;
+		inputs[str][dir].maxSlPointsSize = maxSlPointsSize.value;
+		inputs[str][dir].minSlPointsSize = minSlPointsSize.value;
+		inputs[str][dir].slShift = slShift.value;
+		inputs[str][dir].cancelPendingOrderAtRiskReward = cancelPendingOrderAtRiskReward.value;
+		inputs[str][dir].fractalNumber = fractalNumber.value;
+		inputs[str][dir].lastFractalNumber = lastFractalNumber.value;
+		inputs[str][dir].maxCandlesPerSetup = maxCandlesPerSetup.value;
+		inputs[str][dir].structureInBodies = structureInBodies.value;
+		inputs[str][dir].useImbalances = useImbalances.value;
+		inputs[str][dir].useDivergences = useDivergences.value;
+		inputs[str][dir].confirmationFibonacci = confirmationFibonacci.value;
+		inputs[str][dir].entryFibonacci = entryFibonacci.value;
+		inputs[str][dir].previusDayBias = previousDayBias.value;
+		inputs[str][dir].asianBias = asianBias.value;
+		inputs[str][dir].europeanBias = europeanBias.value;
+		inputs[str][dir].americanBias = americanBias.value;
+	}
+	
+	function copyInput(){
+		var str = document.getElementById("strategyID").value;
+		var dir = document.getElementById("direction").value;
+		copy.run = inputs[str][dir].run;
+		copy.tradingRange = inputs[str][dir].tradingRange;
+		copy.riskRatio = inputs[str][dir].riskRatio;
+		copy.riskPerTrade = inputs[str][dir].riskPerTrade;
+		copy.startingBE = inputs[str][dir].startingBE;
+		copy.startingTrailingStop = inputs[str][dir].startingTrailingStop;
+		copy.trailingStopFactor = inputs[str][dir].trailingStopFactor;
+		copy.stopInBodies = inputs[str][dir].stopInBodies;
+		copy.maxSlPointsSize = inputs[str][dir].maxSlPointsSize;
+		copy.minSlPointsSize = inputs[str][dir].minSlPointsSize;
+		copy.slShift = inputs[str][dir].slShift;
+		copy.cancelPendingOrderAtRiskReward = inputs[str][dir].cancelPendingOrderAtRiskReward;
+		copy.fractalNumber = inputs[str][dir].fractalNumber;
+		copy.lastFractalNumber = inputs[str][dir].lastFractalNumber;
+		copy.maxCandlesPerSetup = inputs[str][dir].maxCandlesPerSetup;
+		copy.structureInBodies = inputs[str][dir].structureInBodies;
+		copy.useImbalances = inputs[str][dir].useImbalances;
+		copy.useDivergences = inputs[str][dir].useDivergences;
+		copy.confirmationFibonacci = inputs[str][dir].confirmationFibonacci;
+		copy.entryFibonacci = inputs[str][dir].entryFibonacci;
+		copy.previousDayBias = inputs[str][dir].previousDayBias;
+		copy.asianBias = inputs[str][dir].asianBias;
+		copy.europeanBias = inputs[str][dir].europeanBias;
+		copy.americanBias = inputs[str][dir].americanBias;
+		console.log(copy);
+	}
+	
+	function pasteInput(){
+		var str = document.getElementById("strategyID").value;
+		var dir = document.getElementById("direction").value;
+		inputs[str][dir].run = copy.run;
+		inputs[str][dir].tradingRange = copy.tradingRange;
+		inputs[str][dir].riskRatio = copy.riskRatio;
+		inputs[str][dir].riskPerTrade = copy.riskPerTrade;
+		inputs[str][dir].startingBE = copy.startingBE;
+		inputs[str][dir].startingTrailingStop = copy.startingTrailingStop;
+		inputs[str][dir].trailingStopFactor = copy.trailingStopFactor;
+		inputs[str][dir].stopInBodies = copy.stopInBodies;
+		inputs[str][dir].maxSlPointsSize = copy.maxSlPointsSize;
+		inputs[str][dir].minSlPointsSize = copy.minSlPointsSize;
+		inputs[str][dir].slShift = copy.slShift;
+		inputs[str][dir].cancelPendingOrderAtRiskReward = copy.cancelPendingOrderAtRiskReward;
+		inputs[str][dir].fractalNumber = copy.fractalNumber;
+		inputs[str][dir].lastFractalNumber = copy.lastFractalNumber;
+		inputs[str][dir].maxCandlesPerSetup = copy.maxCandlesPerSetup;
+		inputs[str][dir].structureInBodies = copy.structureInBodies;
+		inputs[str][dir].useImbalances = copy.useImbalances;
+		inputs[str][dir].useDivergences = copy.useDivergences;
+		inputs[str][dir].confirmationFibonacci = copy.confirmationFibonacci;
+		inputs[str][dir].entryFibonacci = copy.entryFibonacci;
+		inputs[str][dir].previousDayBias = copy.previousDayBias;
+		inputs[str][dir].asianBias = copy.asianBias;
+		inputs[str][dir].europeanBias = copy.europeanBias;
+		inputs[str][dir].americanBias = copy.americanBias;
+		loadInputToScreen();
+	}
+	
+	function writeF(){
+		path = 'Inputs.txt';
+
+		var inputString = '';
+
+		for (var i = 0; i < 8; i++) {
+		  for (var j = 0; j < 2; j++) {
+			var input = inputs[i][j];
+			var direction = j==0?'buy':'sell'
+			inputString += '_________________strategy ' + i + ', direction ' + direction  + '________________\n';
+			inputString += 'run:' + input.run + '\n';
+			if(input.run == true || input.run == 'true'){
+				inputString += 'tradingRange:' + input.tradingRange + '\n';
+				inputString += 'riskRatio:' + input.riskRatio + '\n';
+				inputString += 'riskPerTrade:' + input.riskPerTrade + '\n';
+				inputString += 'startingBE:' + input.startingBE + '\n';
+				inputString += 'startingTrailingStop:' + input.startingTrailingStop + '\n';
+				inputString += 'trailingStopFactor:' + input.trailingStopFactor + '\n';
+				inputString += 'stopInBodies:' + input.stopInBodies + '\n';
+				inputString += 'maxSlPointsSize:' + input.maxSlPointsSize + '\n';
+				inputString += 'minSlPointsSize:' + input.minSlPointsSize + '\n';
+				inputString += 'slShift:' + input.slShift + '\n';
+				inputString += 'cancelPendingOrderAtRiskReward:' + input.cancelPendingOrderAtRiskReward + '\n';
+				inputString += 'fractalNumber:' + input.fractalNumber + '\n';
+				inputString += 'lastFractalNumber:' + input.lastFractalNumber + '\n';
+				inputString += 'maxCandlesPerSetup:' + input.maxCandlesPerSetup + '\n';
+				inputString += 'structureInBodies:' + input.structureInBodies + '\n';
+				inputString += 'useImbalances:' + input.useImbalances + '\n';
+				inputString += 'useDivergences:' + input.useDivergences + '\n';
+				inputString += 'confirmationFibonacci:' + input.confirmationFibonacci + '\n';
+				inputString += 'entryFibonacci:' + input.entryFibonacci + '\n';
+				inputString += 'previousDayBias:' + input.previousDayBias + '\n';
+				inputString += 'asianBias:' + input.asianBias + '\n';
+				inputString += 'europeanBias:' + input.europeanBias + '\n';
+				inputString += 'americanBias:' + input.americanBias + '\n';
+			}
+		  }
+		}
+        var link = document.createElement('a');
+        link.setAttribute('download', path);
+		var data = new Blob([inputString], {type: 'text/plain'});
+        link.href = URL.createObjectURL(data);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+	}
+	function loadF(event) {
+		const input = event.target;
+		if ('files' in input && input.files.length > 0) {
+			const file = input.files[0];
+			const reader = new FileReader();
+			reader.onload = function(event) {
+				const fileContent = event.target.result;
+				update(fileContent);
+			}
+			reader.readAsText(file);
+			
+		}
+	}
+	function update(fileContent){
+		const lines = fileContent.split('\n');
+		var k = 0;
+		for( var i = 0; i<8;i++){
+			for(var j = 0; j<2;j++){
+				k++;
+				inputs[i][j].run = lines[k++].split(':')[1];
+				if(inputs[i][j].run == "true"){
+					inputs[i][j].tradingRange = lines[k++].split(':')[1];
+					inputs[i][j].riskRatio = lines[k++].split(':')[1];
+					inputs[i][j].riskPerTrade = lines[k++].split(':')[1];
+					inputs[i][j].startingBE = lines[k++].split(':')[1];
+					inputs[i][j].startingTrailingStop = lines[k++].split(':')[1];
+					inputs[i][j].trailingStopFactor = lines[k++].split(':')[1];
+					inputs[i][j].stopInBodies = lines[k++].split(':')[1];
+					inputs[i][j].maxSlPointsSize = lines[k++].split(':')[1];
+					inputs[i][j].minSlPointsSize = lines[k++].split(':')[1];
+					inputs[i][j].slShift = lines[k++].split(':')[1];
+					inputs[i][j].cancelPendingOrderAtRiskReward = lines[k++].split(':')[1];
+					inputs[i][j].fractalNumber = lines[k++].split(':')[1];
+					inputs[i][j].lastFractalNumber = lines[k++].split(':')[1];
+					inputs[i][j].maxCandlesPerSetup = lines[k++].split(':')[1];
+					inputs[i][j].iuctureInBodies = lines[k++].split(':')[1];
+					inputs[i][j].useImbalances = lines[k++].split(':')[1];
+					inputs[i][j].useDivergences = lines[k++].split(':')[1];
+					inputs[i][j].confirmationFibonacci = lines[k++].split(':')[1];
+					inputs[i][j].entryFibonacci = lines[k++].split(':')[1];
+					inputs[i][j].previousDayBias = lines[k++].split(':')[1];
+					inputs[i][j].asianBias = lines[k++].split(':')[1];
+					inputs[i][j].europeanBias = lines[k++].split(':')[1];
+					inputs[i][j].americanBias = lines[k++].split(':')[1];
+				}
+			}
+		}
+		loadInputToScreen();
+	}
+	
+
+</script>

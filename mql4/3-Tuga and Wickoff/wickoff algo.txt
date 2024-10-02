@@ -1,0 +1,97 @@
+
+void accumulation1(){
+   const int strategyID = 0;
+   const MODE_DIRECTION direction = BUY;
+   int size = extraCandelsM1.getSize();
+   for(int sos = 1; sos <= MAX_CANDELS + size -12;sos++){ //Looking for the sign of strength(sos)
+      if(isReallyHigh(sos,0)){
+         for(int spring = sos + 1; spring <= MAX_CANDELS + size -11;spring++){//Looking for the spring
+            if(high(spring)>= high(sos))//If there is any value that spring can take that is higher than the sos this sos is not valid
+               spring = MAX_CANDELS + size + 1;//no more springs for this sos
+            else if(isReallyLow(spring,sos) && fibonacci(low(spring),high(sos),ENTRY_FIBONACCI)<Bid && !springsArray.existSpring(low(spring))){
+               for(int stua = spring + 1; stua <= MAX_CANDELS + size -10;stua++){//Looking for the stua
+                  if(low(stua)<=low(spring)){//If there is any value that stua can take that is lower than the spring this spring is not valid
+                     stua = MAX_CANDELS + size + 1;//no more stuas for this spring
+                  }
+                  else if(isReallyHigh(stua,spring) && high(stua) < high(sos)){
+                     for(int stsow = stua + 1; stsow <= MAX_CANDELS + size -9;stsow++){//Looking for the stsow
+                        if(high(stsow) >= high(stua)){//If there is any value that stsow can take that is higher than the stua this stua is not valid
+                           stsow = MAX_CANDELS + size + 1;//no more stsows for this stua
+                        }
+                        else if(isReallyLow(stsow,stua) && low(stsow) > low(spring) && (RSI!=ST_SOW || rsiDivergence(spring,stsow,direction))){
+                           for(int ua = stsow + 1; ua <= MAX_CANDELS + size -8;ua++){//Looking for the ua
+                              
+                              if(low(ua) <= low(stsow)){//If there is any value that ua can take that is lower than the stsow this stsow is not valid
+                                 ua = MAX_CANDELS + size + 1;//no more uas for this stsow
+                              }
+                              else if(isReallyHigh(ua,stsow) && fibonacci(high(ua),low(stsow),0.5)<=high(stua) && fibonacci(high(ua),low(stsow),0.9)>=high(stua)){
+                                 for(int st = ua + 1; st <= MAX_CANDELS + size -7;st++){//Looking for the st
+                                    if(high(st) >= high(ua)){//If there is any value that st can take that is higher than the ua this ua is not valid
+                                       st = MAX_CANDELS + size + 1;//no more sts for this ua
+                                    }
+                                    else if(isReallyLow(st,ua)){
+                                       for(int ar = st + 1; ar <= MAX_CANDELS + size -6;ar++){//Looking for the ar
+                                          
+                                          if(low(ar) <= low(st)){//If there is any value that ar can take that is lower than the st this st is not valid
+                                             ar = MAX_CANDELS + size + 1;//no more ars for this st
+                                          }
+                                          else if(isReallyHigh(ar,st) && high(ar)<high(ua)){
+                                             for(int sc = ar + 1; sc <= MAX_CANDELS + size -5;sc++){//Looking for the sc
+                                             
+                                                if(high(sc) >= high(ar)){//If there is any value that sc can take that is higher than the ar this ar is not valid
+                                                   sc = MAX_CANDELS + size + 1;//no more scs for this ar
+                                                }
+                                                else if(isReallyLow(sc,ar) && fibonacci(low(sc),high(ar),0.5)>=low(st) && fibonacci(low(sc),high(ar),1.1)<=low(st) && (RSI!=SC || rsiDivergence(spring,sc,direction))){
+                                                   Print("HI 1");
+                                                   for(int b = sc + 1; b <= MAX_CANDELS + size -4;b++){//Looking for the b
+                                                      if(low(b) <= low(sc)){//If there is any value that b can take that is lower than the sc this sc is not valid
+                                                         b = MAX_CANDELS + size + 1;//no more bs for this sc
+                                                      }
+                                                      else if(isReallyHigh(b,sc) && fibonacci(low(sc),high(b),0.9)>=low(stsow) && fibonacci(low(sc),high(b),1.2)<=low(stsow) &&
+                                                              fibonacci(high(b),low(sc),0.5)<=high(ar) && fibonacci(high(b),low(sc),0.8)>=high(ar) &&
+                                                              fibonacci(high(b),low(sc),0.7)<=high(ua) && fibonacci(high(b),low(sc),0.95)>=high(ua)){
+                                                         Print("HI 2");
+                                                         for(int ps = b + 1; ps <= MAX_CANDELS + size -3;ps++){//Looking for the ps
+                                                            if(high(ps) >= high(b)){//If there is any value that ps can take that is higher than the b this b is not valid
+                                                               ps = MAX_CANDELS + size + 1;//no more pss for this b
+                                                            }
+                                                            else if(isReallyLow(ps,b) && (!USE_VOL || isMaxVol(ps,spring+1)) && low(ps)>low(sc) && (RSI!=PS || rsiDivergence(spring,ps,direction))){//Max Volume
+                                                               for(int a = ps + 1; a <= MAX_CANDELS + size -2;a++){//Looking for the a
+                                                                  if(low(a) <= low(ps)){//If there is any value that a can take that is lower than the ps this ps is not valid
+                                                                     a = MAX_CANDELS + size + 1;//no more as for this ps
+                                                                  }
+                                                                  else if(isReallyHigh(a,ps) && fibonacci(high(a),low(ps),0.382)<=high(b) && high(b)<high(a) && high(a)>high(a+1) && high(a)>high(a+2)){
+                                                                     Print("HI 3");
+                                                                     double spread = NormalizeDouble(Ask - Bid,Digits());
+                                                                     double entry = fibonacci(low(spring),high(sos),ENTRY_FIBONACCI) + spread;
+                                                                     double sl = low(spring);
+                                                                     double tp = NormalizeDouble(entry + (entry - sl) * RISK_RATIO,Digits());
+                                                                     if(Ask>entry && existImbalance(spring,ps,direction)){
+                                                                        int ticket = orderRegist(entry,sl,tp,strategyID,direction);
+                                                                        if(ticket !=-1){
+                                                                           FileWrite(pointsFile,ticket,a,ps,b,sc,ar,st,ua,stsow,stua,spring,sos);
+                                                                        }
+                                                                     }
+                                                                  }
+                                                               }
+                                                            }
+                                                         }
+                                                      }
+                                                   }
+                                                }
+                                             }
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+}
